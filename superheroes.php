@@ -65,9 +65,43 @@ $superheroes = [
 
 ?>
 
-<ul>
-<?php foreach ($superheroes as $superhero): ?>
-  <li><?= $superhero['alias']; ?></li>
-<?php endforeach; ?>
-</ul>
 
+<?php 
+
+function retrieveHeroData($superheroes, $formData) {
+    // Loop over the list of superheroes
+    foreach ($superheroes as $superhero) {
+        // Check if the entered data matches the hero's name or alias (case-insensitive)
+        if (strtolower($formData) == strtolower($superhero['name']) || strtolower($formData) == strtolower($superhero['alias'])) {
+            return $superhero;
+        }
+    }
+    return "Superhero not found";
+}
+
+function processFormData($superheroes) {
+    // Retrieve data from the query string
+    $data = $_GET['query'];
+
+    if ($data == '') {
+        // If no data is entered, list all superheroes
+        $list = '<ul>';
+        foreach ($superheroes as $superhero) {
+            $list .= "<li>{$superhero['alias']}</li>";
+        }
+        $list .= '</ul>';
+        echo $list;
+    } else {
+        // Sanitize the data
+        $sanitizedData = trim(filter_var($data, FILTER_SANITIZE_STRING));
+        $heroData = retrieveHeroData($superheroes, $sanitizedData);
+
+        // Send hero data back to the client as JSON
+        echo json_encode($heroData);
+    }
+}
+
+processFormData($superheroes)
+    
+
+?>
